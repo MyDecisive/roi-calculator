@@ -1,0 +1,4 @@
+interface:
+  display_name: "MyDecisive ROI Module"
+  short_description: "Build and maintain the ROI calculator module"
+  default_prompt: "Use $mdai-roi-module to update the ROI calculator micro-front-end."

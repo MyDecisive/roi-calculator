@@ -236,6 +236,14 @@ export function RoiCalculator({
                 </div>
               </div>
             </div>
+
+            <div className="mdai-cost-sep-wrap mdai-cost-desktop">
+              <div className="mdai-cost-box">
+                <span className="mdai-cost-tag">Your cost to run MDAI</span>
+                <span className="mdai-cost-amount">$XX.XX</span>
+                <span className="mdai-cost-unit">/ month</span>
+              </div>
+            </div>
           </section>
 
           <section className="roi-results" aria-label="Estimated result" aria-live="polite">
@@ -297,6 +305,14 @@ export function RoiCalculator({
               <div className="stat">
                 <span className="stat-num">{formatGb(results.bytesOutDay)}</span>
                 <span className="stat-lbl">forwarded / day</span>
+              </div>
+            </div>
+
+            <div className="mdai-cost-sep-wrap mdai-cost-mobile">
+              <div className="mdai-cost-box">
+                <span className="mdai-cost-tag">Your cost to run MDAI</span>
+                <span className="mdai-cost-amount">$XX.XX</span>
+                <span className="mdai-cost-unit">/ month</span>
               </div>
             </div>
 

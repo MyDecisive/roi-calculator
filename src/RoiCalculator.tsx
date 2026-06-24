@@ -304,7 +304,7 @@ export function RoiCalculator({
               <a className="cta cta-primary" href={mergedConfig.CTA_GET_STARTED_URL}>
                 Get started <span className="arr">→</span>
               </a>
-              <a className="cta cta-ghost" href={mergedConfig.CTA_CONTACT_URL}>
+              <a className="cta cta-ghost" href={mergedConfig.CTA_CONTACT_URL} target="_blank" rel="noopener noreferrer">
                 Talk to us
               </a>
             </div>

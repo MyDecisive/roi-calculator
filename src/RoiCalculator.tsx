@@ -20,7 +20,7 @@ export type RoiCalculatorProps = {
   id?: string;
 };
 
-type TermKey = 'filtering' | 'smarthub';
+type TermKey = 'filtering' | 'smarthub' | 'mdaicost';
 
 type TermDefinition = {
   label: string;
@@ -62,6 +62,11 @@ const TERMS: Record<TermKey, TermDefinition> = {
     label: 'SmartHub',
     text:
       "MyDecisive's Smart Telemetry Hub sits between your apps and observability vendor. It filters and shapes logs and traces in flight, so you pay for less data without losing what matters."
+  },
+  mdaicost: {
+    label: 'Your cost to run MDAI',
+    text:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.'
   }
 };
 
@@ -239,7 +244,16 @@ export function RoiCalculator({
 
             <div className="mdai-cost-sep-wrap mdai-cost-desktop">
               <div className="mdai-cost-box">
-                <span className="mdai-cost-tag">Your cost to run MDAI</span>
+                <span className="mdai-cost-tag">
+                  Your cost to run MDAI
+                  <InfoButton
+                    term="mdaicost"
+                    label="How is MDAI cost calculated?"
+                    compact
+                    activeTerm={activeTerm}
+                    setActiveTerm={setActiveTerm}
+                  />
+                </span>
                 <span className="mdai-cost-amount">$XX.XX</span>
                 <span className="mdai-cost-unit">/ month</span>
               </div>
@@ -310,7 +324,16 @@ export function RoiCalculator({
 
             <div className="mdai-cost-sep-wrap mdai-cost-mobile">
               <div className="mdai-cost-box">
-                <span className="mdai-cost-tag">Your cost to run MDAI</span>
+                <span className="mdai-cost-tag">
+                  Your cost to run MDAI
+                  <InfoButton
+                    term="mdaicost"
+                    label="How is MDAI cost calculated?"
+                    compact
+                    activeTerm={activeTerm}
+                    setActiveTerm={setActiveTerm}
+                  />
+                </span>
                 <span className="mdai-cost-amount">$XX.XX</span>
                 <span className="mdai-cost-unit">/ month</span>
               </div>

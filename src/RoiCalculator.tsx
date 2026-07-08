@@ -347,7 +347,12 @@ export function RoiCalculator({
             </div>
 
             <div className="cta-row">
-              <a className="cta cta-primary" href={mergedConfig.CTA_GET_STARTED_URL}>
+              <a
+                className="cta cta-primary"
+                href="https://github.com/MyDecisive/octant#welcome-to-octant"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Get started <span className="arr">→</span>
               </a>
               <a className="cta cta-ghost" href={mergedConfig.CTA_CONTACT_URL} target="_blank" rel="noopener noreferrer">

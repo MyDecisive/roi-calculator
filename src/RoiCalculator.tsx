@@ -8,7 +8,6 @@ import {
   formatMoney,
   formatMoneyExact,
   mdaiInfraCostPerMonth,
-  type MdaiInfraCostResult,
   type RoiCalculatorConfig,
   type RoiCalculatorInputs,
   type RoiCalculatorResults

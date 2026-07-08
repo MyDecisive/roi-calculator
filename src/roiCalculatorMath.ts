@@ -53,6 +53,50 @@ export const DEFAULT_INPUTS: RoiCalculatorInputs = {
   filterPct: 70
 };
 
+// MDAI Infrastructure Cost Calculation
+// AWS list price constants (verified July 2026, us-east-1)
+// Compute priced as 1-Year Standard Reserved Instances, No Upfront
+export const MDAI_COMPUTE_COST_PER_UNIT = 635.41;   // 7 EC2 instances (RI) + EKS control plane (flat)
+export const MDAI_EBS_COST_PER_UNIT = 449.60;       // 5x 1TB gp3, 2 with provisioned perf
+export const MDAI_S3_STORAGE_PRICE_PER_GIB = 0.023; // S3 Standard, first 50TB tier
+export const MDAI_S3_PUT_PRICE_PER_1000 = 0.005;    // S3 Standard PUT/COPY/POST/LIST
+
+// MDAI engineering constants
+export const MDAI_T_REF_GB_PER_DAY = 20000;  // confirmed: 20TB/day sustained per reference cluster
+export const MDAI_RETENTION_DAYS = 2;        // confirmed: S3 rolling buffer retention
+export const MDAI_RETAINED_FRACTION = 1.0;   // confirmed: 100% of raw V written to S3 (no filtering before write)
+export const MDAI_AVG_OBJECT_SIZE_MB = 1;    // confirmed: 1MB avg SmartHub batch write size
+
+export type MdaiInfraCostResult = {
+  clusterUnits: number;
+  computeCost: number;
+  ebsCost: number;
+  s3StorageCost: number;
+  s3RequestCost: number;
+  total: number;
+};
+
+export function mdaiInfraCostPerMonth(V_gb_per_day: number): MdaiInfraCostResult {
+  const N = Math.ceil(V_gb_per_day / MDAI_T_REF_GB_PER_DAY);
+  const computeCost = N * MDAI_COMPUTE_COST_PER_UNIT;
+  const ebsCost = N * MDAI_EBS_COST_PER_UNIT;
+
+  const s3StorageGB = V_gb_per_day * MDAI_RETAINED_FRACTION * MDAI_RETENTION_DAYS;
+  const s3StorageCost = s3StorageGB * MDAI_S3_STORAGE_PRICE_PER_GIB;
+
+  const s3PutsPerMonth = (s3StorageGB * 1024 / MDAI_AVG_OBJECT_SIZE_MB) * (30 / MDAI_RETENTION_DAYS);
+  const s3RequestCost = (s3PutsPerMonth / 1000) * MDAI_S3_PUT_PRICE_PER_1000;
+
+  return {
+    clusterUnits: N,
+    computeCost,
+    ebsCost,
+    s3StorageCost,
+    s3RequestCost,
+    total: computeCost + ebsCost + s3StorageCost + s3RequestCost
+  };
+}
+
 function safeNumber(value: number | string | undefined): number {
   const parsed = Number.parseFloat(String(value ?? ''));
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;

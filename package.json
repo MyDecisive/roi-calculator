@@ -24,7 +24,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "npm run build:lib",
     "build:demo": "vite build",
-    "build:lib": "BUILD_TARGET=lib vite build",
+    "build:lib": "cross-env BUILD_TARGET=lib vite build",
     "build:pages": "npm run build:demo",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
@@ -39,6 +39,7 @@
   "dependencies": {},
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "cross-env": "^7.0.3",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@types/node": "^22.10.2",

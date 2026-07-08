@@ -7,6 +7,7 @@ import {
   formatGb,
   formatMoney,
   formatMoneyExact,
+  mdaiInfraCostPerMonth,
   type RoiCalculatorConfig,
   type RoiCalculatorInputs,
   type RoiCalculatorResults
@@ -66,7 +67,7 @@ const TERMS: Record<TermKey, TermDefinition> = {
   mdaicost: {
     label: 'Your cost to run MDAI',
     text:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.'
+      'This module projects the monthly AWS infrastructure cost to run the MyDecisive SmartHub in your own cloud. Based on your current daily data volume, it scales reference clusters (handling up to 20TB/day each) using standard AWS list pricing (us-east-1) for 1-Year Reserved EC2 instances, EKS control planes, provisioned gp3 EBS storage, and a rolling 2-day S3 storage buffer.'
   }
 };
 
@@ -138,6 +139,12 @@ export function RoiCalculator({
   const rootRef = useRef<HTMLDivElement | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const results = useMemo(() => calculateRoi(inputs, mergedConfig), [inputs, mergedConfig]);
+  const mdaiCost = useMemo(() => {
+    const logGbDay = typeof inputs.logGB === 'string' ? parseFloat(inputs.logGB) || 0 : inputs.logGB;
+    const traceGbDay = typeof inputs.traceGB === 'string' ? parseFloat(inputs.traceGB) || 0 : inputs.traceGB;
+    const V_gb_per_day = logGbDay + traceGbDay;
+    return V_gb_per_day > 0 ? mdaiInfraCostPerMonth(V_gb_per_day) : null;
+  }, [inputs.logGB, inputs.traceGB]);
   const activeInfo = activeTerm ? TERMS[activeTerm] : null;
 
   function updateInput(key: keyof RoiCalculatorInputs, value: string) {
@@ -254,7 +261,7 @@ export function RoiCalculator({
                     setActiveTerm={setActiveTerm}
                   />
                 </span>
-                <span className="mdai-cost-amount">$XX.XX</span>
+                <span className="mdai-cost-amount">{mdaiCost ? formatMoney(mdaiCost.total) : '$0'}</span>
                 <span className="mdai-cost-unit">/ month</span>
               </div>
             </div>
@@ -334,7 +341,7 @@ export function RoiCalculator({
                     setActiveTerm={setActiveTerm}
                   />
                 </span>
-                <span className="mdai-cost-amount">$XX.XX</span>
+                <span className="mdai-cost-amount">{mdaiCost ? formatMoney(mdaiCost.total) : '$0'}</span>
                 <span className="mdai-cost-unit">/ month</span>
               </div>
             </div>

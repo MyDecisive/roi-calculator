@@ -44,12 +44,15 @@ Expected outcome for feature work:
 ## Consumer Dependency Options
 
 - Published package: install `@mydecisive/roi-calculator`.
+- Published package versions: use `@mydecisive/roi-calculator@latest` for the latest published
+  package or `@mydecisive/roi-calculator@0.1.0` to pin a known version.
 - Local submodule: use `"@mydecisive/roi-calculator": "file:vendor/roi-calculator"` in the
   consuming app. The `file:` value points to a local folder in that app, usually a git submodule.
   Integration docs should include host-app scripts for `roi:submodule:init`,
-  `roi:submodule:install`, `roi:submodule:build`, `roi:submodule:verify`, and
-  `roi:submodule:prepare`, plus a `prebuild` hook or equivalent.
+  `roi:submodule:tag`, `roi:submodule:latest`, `roi:submodule:install`, `roi:submodule:build`,
+  `roi:submodule:verify`, and `roi:submodule:prepare`, plus a `prebuild` hook or equivalent.
 - GitHub direct dependency: use `"@mydecisive/roi-calculator": "github:mydecisive/roi-calculator#main"`.
+  Prefer pinned tags such as `"github:mydecisive/roi-calculator#0.1.0"` for production installs.
   This requires committed `dist/` output or a `prepare` script that builds the library during install.
 
 ## Validation

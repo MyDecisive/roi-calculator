@@ -1,0 +1,55 @@
+name: Bump patch tag on main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-main-tag
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create next patch tag for main
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          latest_tag="$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+          if [ -z "$latest_tag" ]; then
+            latest_tag="$(sed -n 's/.*"version": "\([^"]*\)".*/\1/p' package.json | head -n 1)"
+          fi
+
+          if [[ ! "$latest_tag" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "Could not determine a semver base tag from '$latest_tag'." >&2
+            exit 1
+          fi
+
+          major="${BASH_REMATCH[1]}"
+          minor="${BASH_REMATCH[2]}"
+          patch="${BASH_REMATCH[3]}"
+          next_tag="${major}.${minor}.$((patch + 1))"
+
+          while git rev-parse -q --verify "refs/tags/$next_tag" >/dev/null; do
+            patch=$((patch + 1))
+            next_tag="${major}.${minor}.$((patch + 1))"
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$next_tag" "$GITHUB_SHA"
+          git push origin "$next_tag"
+
+          echo "Created tag $next_tag for $GITHUB_SHA"

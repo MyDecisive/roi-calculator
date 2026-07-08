@@ -115,6 +115,18 @@ From a published package:
 npm install @mydecisive/roi-calculator
 ```
 
+Install the latest published package explicitly:
+
+```bash
+npm install @mydecisive/roi-calculator@latest
+```
+
+Pin a known package version:
+
+```bash
+npm install @mydecisive/roi-calculator@0.1.0
+```
+
 From this repository during local development:
 
 ```bash
@@ -131,7 +143,11 @@ Or pin a branch, tag, or commit:
 
 ```bash
 npm install github:mydecisive/roi-calculator#main
+npm install github:mydecisive/roi-calculator#0.1.0
 ```
+
+For production React apps, prefer a published package version or a pinned Git tag over `#main`.
+Pinned versions make builds reproducible while still allowing deliberate upgrades.
 
 Use a GitHub dependency only when the repository can build itself during install or already contains
 the built package output. For this package, that means either:
@@ -174,6 +190,27 @@ git submodule add git@github.com:mydecisive/roi-calculator.git vendor/roi-calcul
 git submodule update --init --recursive
 ```
 
+Pin the submodule to a known released tag:
+
+```bash
+ROI_CALCULATOR_VERSION=0.1.0
+git -C vendor/roi-calculator fetch --tags --force
+git -C vendor/roi-calculator checkout "$ROI_CALCULATOR_VERSION"
+git add vendor/roi-calculator
+```
+
+Or move the submodule to the latest available semver tag:
+
+```bash
+git -C vendor/roi-calculator fetch --tags --force
+ROI_CALCULATOR_VERSION="$(git -C vendor/roi-calculator tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+git -C vendor/roi-calculator checkout "$ROI_CALCULATOR_VERSION"
+git add vendor/roi-calculator
+```
+
+Commit the submodule pointer in the consuming app after choosing a version. That commit is what
+makes the host app build use the same calculator version in local development and CI.
+
 Build the calculator package inside the submodule:
 
 ```bash
@@ -215,6 +252,8 @@ Add host-app scripts that make submodule setup explicit. In the consuming app's 
 {
   "scripts": {
     "roi:submodule:init": "git submodule update --init --recursive vendor/roi-calculator",
+    "roi:submodule:tag": "test -n \"$ROI_CALCULATOR_VERSION\" && git -C vendor/roi-calculator fetch --tags --force && git -C vendor/roi-calculator checkout \"$ROI_CALCULATOR_VERSION\"",
+    "roi:submodule:latest": "git -C vendor/roi-calculator fetch --tags --force && ROI_CALCULATOR_VERSION=$(git -C vendor/roi-calculator tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1) && test -n \"$ROI_CALCULATOR_VERSION\" && git -C vendor/roi-calculator checkout \"$ROI_CALCULATOR_VERSION\"",
     "roi:submodule:install": "npm --prefix vendor/roi-calculator ci",
     "roi:submodule:build": "npm --prefix vendor/roi-calculator run build",
     "roi:submodule:verify": "git submodule status vendor/roi-calculator && test -f vendor/roi-calculator/package.json && test -f vendor/roi-calculator/dist/index.js && test -f vendor/roi-calculator/dist/roi-calculator.css",
@@ -227,10 +266,15 @@ Add host-app scripts that make submodule setup explicit. In the consuming app's 
 What these scripts do:
 
 - `roi:submodule:init` ensures the submodule checkout exists.
+- `roi:submodule:tag` checks out the tag named by `ROI_CALCULATOR_VERSION`, such as `0.1.0`.
+- `roi:submodule:latest` checks out the highest available `MAJOR.MINOR.PATCH` tag.
 - `roi:submodule:install` installs this module's dependencies inside the submodule.
 - `roi:submodule:build` generates the package `dist/` output used by the host app.
 - `roi:submodule:verify` fails fast if the submodule is missing or the built package files are absent.
 - `prebuild` makes the host app build fail before Vite runs if the submodule is not ready.
+
+After running `npm run roi:submodule:tag` or `npm run roi:submodule:latest`, commit the updated
+`vendor/roi-calculator` pointer in the consuming app.
 
 If the host app already has a `prebuild` script, call `npm run roi:submodule:prepare` from that
 existing script instead of replacing it.
@@ -353,6 +397,15 @@ npm run validate
 
 Enable branch protection in GitHub and require the `Validate` workflow before merging to `main`.
 
+## Release tags
+
+The workflow in `.github/workflows/tag-main.yml` creates the next patch tag every time a pull request
+is merged to `main` or a commit is pushed directly to `main`. Tags use plain semantic versions
+without a `v` prefix, such as `0.1.1`.
+
+The workflow finds the highest existing `MAJOR.MINOR.PATCH` tag and increments the patch number. If
+no semver tag exists yet, it uses the `version` field from `package.json` as the base.
+
 ## Publishing
 
 Build before publishing:
@@ -421,7 +474,8 @@ Use these files as the source of truth:
 - Visual styling lives in `src/roi-calculator.css`.
 - Unit tests live beside source in `src/*.test.ts`; math tests should import `src/roiCalculatorMath.ts` directly.
 - Demo-only layout lives in `demo/`.
-- Packaging and Pages behavior live in `package.json`, `vite.config.js`, and `.github/workflows/pages.yml`.
+- Packaging, Pages, and release tag behavior live in `package.json`, `vite.config.js`, and
+  `.github/workflows/`.
 - The archived `archive/mdai-roi-calculator.legacy.html` file is retained only as historical
   reference for the original single-file embed.
 

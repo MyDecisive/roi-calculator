@@ -25,9 +25,12 @@ Preserve the Vite/React dependency contract:
 - Consumers import '@mydecisive/roi-calculator/style.css'.
 - Document all supported dependency sources when integration docs change: published package,
   `file:vendor/roi-calculator` local submodule, and GitHub direct dependency.
+- For package or GitHub dependency docs, show both latest-version installs and pinned version/tag
+  installs so consuming React apps can choose reproducible builds.
 - Explain that `file:vendor/roi-calculator` points to a local folder in the consuming app.
 - For submodule docs, include host-app package scripts that initialize, install, build, verify, and
-  prepare the submodule before host builds.
+  prepare the submodule before host builds. Include scripts for checking out a specified
+  `ROI_CALCULATOR_VERSION` tag and the latest available semver tag.
 - For GitHub direct dependencies, call out that `dist/` must be committed or a `prepare` script must
   build the package during install.
 
@@ -54,3 +57,4 @@ When a user asks for a feature, identify:
 - Update the Pages demo in `demo/`.
 - Update package scripts and exports in `package.json`.
 - Update deployment behavior in `.github/workflows/pages.yml`.
+- Update automatic release tag behavior in `.github/workflows/tag-main.yml`.
